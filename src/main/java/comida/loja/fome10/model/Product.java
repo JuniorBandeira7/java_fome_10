@@ -16,14 +16,23 @@ public class Product {
     private Integer price;
     private Integer qtd;
 
-    public Product(Integer id, String name, Integer price) {
+    public Product(Integer id, String name, Integer price, Integer qtd) {
         this.id = id;
         this.name = name;
         this.price = price;
+        this.qtd = qtd;
     }
 
     public Product() {
 
+    }
+
+    public Integer getQtd() {
+        return qtd;
+    }
+
+    public void setQtd(Integer qtd) {
+        this.qtd = qtd;
     }
 
     public Integer getId() {
