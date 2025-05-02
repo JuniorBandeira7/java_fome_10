@@ -14,6 +14,7 @@ public class Product {
     private Integer id;
     private String name;
     private Integer price;
+    private Integer qtd;
 
     public Product(Integer id, String name, Integer price) {
         this.id = id;
