@@ -24,6 +24,6 @@ public class UserController {
     @GetMapping
     public List<User> getAll() {return userService.getAll();}
 
-    @PostMapping
+    @PostMapping("/cadastrar")
     public User create(@RequestBody User user) {return userService.save(user);}
 }

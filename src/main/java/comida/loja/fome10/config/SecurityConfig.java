@@ -2,7 +2,9 @@ package comida.loja.fome10.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
@@ -20,6 +22,8 @@ import static org.springframework.boot.autoconfigure.security.servlet.PathReques
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.proc.SecurityContext;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -32,16 +36,18 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.ignoringRequestMatchers(toH2Console()).disable())
-            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(
-                auth -> auth
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
                 .requestMatchers(toH2Console()).permitAll()
-                .requestMatchers("/usuario").permitAll()
-                            .anyRequest().authenticated())
-            .headers(headers -> headers.frameOptions(FrameOptionsConfig::disable))
-            .httpBasic(Customizer.withDefaults())
-            .oauth2ResourceServer(
-                conf -> conf.jwt(Customizer.withDefaults()));
+                .requestMatchers("/usuario/cadastrar").permitAll()
+                .anyRequest().authenticated())
+                .headers(headers -> headers.frameOptions(FrameOptionsConfig::disable))
+                .httpBasic(Customizer.withDefaults())
+                .oauth2ResourceServer(conf -> conf.jwt(Customizer.withDefaults()))
+                .exceptionHandling(exception -> exception
+                .authenticationEntryPoint((request, response, authException)
+                        -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")));
+
         return http.build();
     }
 
@@ -61,4 +67,9 @@ public class SecurityConfig {
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    return config.getAuthenticationManager();
+}
 }
