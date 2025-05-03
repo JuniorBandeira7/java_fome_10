@@ -1,5 +1,14 @@
 package comida.loja.fome10.config;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
+
+import java.time.Instant;
+import java.util.Base64;
+import java.util.Date;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,27 +20,27 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.JwtEncodingException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
-
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
-import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 
 import jakarta.servlet.http.HttpServletResponse;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
-    private static final String SECRET = "meuSegredo12345678901234567890"; // Pelo menos 32 bytes para HS256
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -39,7 +48,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers(toH2Console()).permitAll()
-                .requestMatchers("/usuario/cadastrar").permitAll()
+                .requestMatchers("/usuario/cadastrar", "/login").permitAll()
                 .anyRequest().authenticated())
                 .headers(headers -> headers.frameOptions(FrameOptionsConfig::disable))
                 .httpBasic(Customizer.withDefaults())
@@ -53,15 +62,49 @@ public class SecurityConfig {
 
     @Bean
     JwtDecoder jwtDecoder() {
-        SecretKey secretKey = new SecretKeySpec(SECRET.getBytes(), "HmacSHA256"); // Chave no proprio codigo para fins de teste
+        String SECRET = "6f9b1e76f552ed443a37c55ca6e8bbd48671ad2119c57461466c2c622503a232";
+        SecretKey secretKey = new SecretKeySpec(SECRET.getBytes(), "HmacSHA256");
         return NimbusJwtDecoder.withSecretKey(secretKey).build();
     }
 
     @Bean
     JwtEncoder jwtEncoder() {
-        SecretKey secretKey = new SecretKeySpec(SECRET.getBytes(), "HmacSHA256");
-        return new NimbusJwtEncoder(new ImmutableSecret<SecurityContext>(secretKey));
+        String SECRET = "6f9b1e76f552ed443a37c55ca6e8bbd48671ad2119c57461466c2c622503a232";
+        return new JwtEncoder() {
+            @Override
+            public Jwt encode(JwtEncoderParameters parameters) throws JwtEncodingException {
+                byte[] secretKeyBytes;
+                secretKeyBytes = Base64.getDecoder().decode(SECRET);
+                SecretKeySpec secretKeySpec = new SecretKeySpec(secretKeyBytes, "HmacSHA256");
+                
+                try {
+                    MACSigner signer = new MACSigner(secretKeySpec);
+                    
+                    JWTClaimsSet.Builder claimsSetBuilder = new JWTClaimsSet.Builder();
+                    parameters.getClaims().getClaims().forEach((key, value) ->
+                            claimsSetBuilder.claim(key, value instanceof Instant ? Date.from((Instant) value) : value)
+                    );
+                    JWTClaimsSet claimsSet = claimsSetBuilder.build();
+                    
+                    JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
+                    
+                    SignedJWT signedJWT = new SignedJWT(header, claimsSet);
+                    signedJWT.sign(signer);
+                    
+                    return Jwt.withTokenValue(signedJWT.serialize())
+                            .header("alg", header.getAlgorithm().getName())
+                            .subject(claimsSet.getSubject())
+                            .issuer(claimsSet.getIssuer())
+                            .claims(claims -> claims.putAll(claimsSet.getClaims()))
+                            .issuedAt(claimsSet.getIssueTime().toInstant())
+                            .expiresAt(claimsSet.getExpirationTime().toInstant())
+                            .build();
+                } catch (Exception e) {
+                    throw new IllegalStateException("Error while signing the JWT", e);
+                }   }
+        };
     }
+
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -70,6 +113,6 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-    return config.getAuthenticationManager();
-}
+        return config.getAuthenticationManager();
+    }
 }
