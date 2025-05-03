@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import comida.loja.fome10.model.LoginRequestDto;
+import comida.loja.fome10.dto.LoginRequestDto;
 import comida.loja.fome10.service.AuthenticationService;
 
 @RestController
@@ -21,14 +21,19 @@ public class AuthenticationController {
         this.authenticationService = authenticationService;
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping("/login")
     public String authenticate(@RequestBody LoginRequestDto loginRequestDto) {
-        Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                loginRequestDto.getEmail(),
-                loginRequestDto.getSenha()
-            )
-        );
-        return authenticationService.authenticate(authentication);
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequestDto.getEmail(),
+                            loginRequestDto.getPassword()
+                    )
+            );
+            return authenticationService.authenticate(authentication);
+        } catch (Exception e) {
+            e.printStackTrace(); // ou log
+            return "Login falhou: " + e.getMessage();
+        }
     }
 }

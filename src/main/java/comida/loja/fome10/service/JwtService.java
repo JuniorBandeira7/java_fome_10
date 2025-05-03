@@ -25,7 +25,11 @@ public class JwtService {
 
         String scopes = authentication.getAuthorities().stream()
         .map(GrantedAuthority::getAuthority)
-        .collect(Collectors.joining(""));
+        .collect(Collectors.joining(" "));
+        
+        if (scopes.isBlank()) {
+            scopes = "ROLE_USER"; // valor padrão
+        }
         
         var claims = JwtClaimsSet.builder()
         .issuer("spring-security-jwt")

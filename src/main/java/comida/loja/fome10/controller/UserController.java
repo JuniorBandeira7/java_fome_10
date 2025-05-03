@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import comida.loja.fome10.dto.UserTokenDto;
 import comida.loja.fome10.model.User;
 import comida.loja.fome10.service.UserService;
 
@@ -25,5 +26,5 @@ public class UserController {
     public List<User> getAll() {return userService.getAll();}
 
     @PostMapping("/cadastrar")
-    public User create(@RequestBody User user) {return userService.save(user);}
+    public UserTokenDto create(@RequestBody User user) {return userService.save(user);}
 }

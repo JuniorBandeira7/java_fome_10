@@ -19,7 +19,7 @@ public class UserAuthenticated implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(user.getRole())); // Usuário só pode ter uma role
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole())); // Usuário só pode ter uma role
     }
 
     @Override
@@ -32,4 +32,8 @@ public class UserAuthenticated implements UserDetails {
         return user.getEmail();
     }
     
+    @Override public boolean isAccountNonExpired() { return true; }
+    @Override public boolean isAccountNonLocked() { return true; }
+    @Override public boolean isCredentialsNonExpired() { return true; }
+    @Override public boolean isEnabled() { return true; }
 }
