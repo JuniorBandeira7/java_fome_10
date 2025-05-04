@@ -19,7 +19,16 @@ public class ProductService {
 
     public Product save(Product product) {return productRepository.save(product);}
 
-    public Product update(Product product, Integer id) {return productRepository.save(product);}
+    public Product update(Product product, Integer id) {
+        Product productT = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+        productT.setName(product.getName());
+        productT.setPrice(product.getPrice());
+        productT.setQtd(product.getQtd());
+        
+        return productRepository.save(productT);
+    }
 
-    public void delete(Integer id) {productRepository.deleteById(id);}
+    public void delete(Integer id) {
+        productRepository.deleteById(id);
+    }
 }
