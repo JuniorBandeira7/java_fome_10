@@ -8,10 +8,10 @@
 		<version>3.4.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>comida.loja</groupId>
-	<artifactId>fome10</artifactId>
+	<groupId>Logistica.Sistema</groupId>
+	<artifactId>Logistica</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>fome10</name>
+	<name>Logistica</name>
 	<description>trabalho de poo3</description>
 	<url/>
 	<licenses>
