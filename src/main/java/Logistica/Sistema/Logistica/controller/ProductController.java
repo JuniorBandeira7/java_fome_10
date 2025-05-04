@@ -29,6 +29,9 @@ public class ProductController {
     @GetMapping
     public List<Product> getAll() {return productService.getAll();}
 
+    @GetMapping("/{id}")
+    public Product findById(@PathVariable Integer id) {return productService.findById(id);}
+
     @PostMapping
     public Product create(@RequestBody Product product) {return productService.save(product);}
 
@@ -37,4 +40,5 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Integer id) {productService.delete(id);}
+
 }

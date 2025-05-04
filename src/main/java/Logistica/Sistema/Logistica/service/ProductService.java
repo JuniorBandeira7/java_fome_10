@@ -17,6 +17,8 @@ public class ProductService {
 
     public List<Product> getAll() {return productRepository.findAll();}
 
+    public Product findById(Integer id) {return productRepository.findById(id).orElseThrow(() -> new RuntimeException("Produto não encontrado."));}
+
     public Product save(Product product) {return productRepository.save(product);}
 
     public Product update(Product product, Integer id) {
