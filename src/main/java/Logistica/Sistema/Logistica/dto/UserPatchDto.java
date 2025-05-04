@@ -4,11 +4,13 @@ public class UserPatchDto {
     private String name;
     private String email;
     private String password;
+    private String role;
 
-    public UserPatchDto(String name, String email, String password) {
+    public UserPatchDto(String name, String email, String password, String role) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.role = role;
     }
 
     public String getName() {
@@ -22,6 +24,12 @@ public class UserPatchDto {
     }
     public void setEmail(String email) {
         this.email = email;
+    }
+    public String getRole() {
+        return role;
+    }
+    public void setRole(String role) {
+        this.role = role;
     }
     public String getPassword() {
         return password;

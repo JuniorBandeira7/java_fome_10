@@ -37,4 +37,7 @@ public class UserController {
 
     @PatchMapping("/{id}")
     public User update(@RequestBody UserPatchDto user, @PathVariable Integer id) {return userService.update(id, user);}
+
+    @PatchMapping("/role/{id}")
+    public User updateRole(@RequestBody UserPatchDto user, @PathVariable Integer id) {return userService.updateRole(id, user);}
 }

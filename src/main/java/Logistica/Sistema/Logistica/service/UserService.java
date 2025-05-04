@@ -58,4 +58,11 @@ public class UserService {
 
         return userRepository.save(user);
     }
+
+    public User updateRole(Integer id, UserPatchDto userPatchDto) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        user.setRole(userPatchDto.getRole().toUpperCase());
+
+        return userRepository.save(user);
+    }
 }

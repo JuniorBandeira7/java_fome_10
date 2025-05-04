@@ -57,6 +57,7 @@ public class SecurityConfig {
                 .requestMatchers("/usuario").hasAnyRole("ADMIN", "RH")
                 .requestMatchers(HttpMethod.DELETE, "/usuario").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PATCH, "/usuario").hasAnyRole("ADMIN", "RH")
+                .requestMatchers(HttpMethod.PATCH, "/usuario/role").hasAnyRole("ADMIN")
                 .anyRequest().authenticated())
                 .headers(headers -> headers.frameOptions(FrameOptionsConfig::disable))
                 .httpBasic(Customizer.withDefaults())
