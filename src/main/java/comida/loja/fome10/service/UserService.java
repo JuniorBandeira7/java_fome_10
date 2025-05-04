@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import comida.loja.fome10.dto.UserPatchDto;
 import comida.loja.fome10.dto.UserTokenDto;
 import comida.loja.fome10.model.User;
 import comida.loja.fome10.repository.UserRepository;
@@ -33,6 +34,7 @@ public class UserService {
     public UserTokenDto save(User user) {
         String rawPassword = user.getPassword();
         user.setPassword(passwordEncoder.encode(rawPassword));
+        user.setRole("USER");
         userRepository.save(user);
     
         Authentication authentication = authenticationManager.authenticate(
@@ -46,4 +48,14 @@ public class UserService {
     }
 
     public void delete(Integer id) {userRepository.deleteById(id);}
+
+    public User update(Integer id, UserPatchDto userPatchDto){
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        user.setName(userPatchDto.getName());
+        user.setEmail(userPatchDto.getEmail());
+        String rawPassword = userPatchDto.getPassword();
+        user.setPassword(passwordEncoder.encode(rawPassword));
+
+        return userRepository.save(user);
+    }
 }
