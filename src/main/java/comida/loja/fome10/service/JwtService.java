@@ -23,12 +23,12 @@ public class JwtService {
         Instant now = Instant.now();
         long expiry = 3600L;
 
-        String scopes = authentication.getAuthorities().stream()
+        String authorities = authentication.getAuthorities().stream()
         .map(GrantedAuthority::getAuthority)
         .collect(Collectors.joining(" "));
         
-        if (scopes.isBlank()) {
-            scopes = "ROLE_USER"; // valor padrão
+        if (authorities.isBlank()) {
+            authorities = "ROLE_USER"; // valor padrão
         }
         
         var claims = JwtClaimsSet.builder()
@@ -36,7 +36,7 @@ public class JwtService {
         .issuedAt(now)
         .expiresAt(now.plusSeconds(expiry))
         .subject(authentication.getName())
-        .claim("scope", scopes)
+        .claim("authorities", authorities)
         .build();
 
         return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
