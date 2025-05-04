@@ -11,6 +11,7 @@ import java.util.Date;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -26,6 +27,8 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.JwtEncodingException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.nimbusds.jose.JWSAlgorithm;
@@ -46,11 +49,15 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers(toH2Console()).permitAll()
-                .requestMatchers("/usuario/cadastrar", "/login").permitAll()
+                .requestMatchers(HttpMethod.POST,"/usuario", "/login").permitAll()
+                .requestMatchers("/usuario").hasAnyRole("ADMIN", "RH")
+                .requestMatchers(HttpMethod.DELETE, "/usuario").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PATCH, "/usuario").hasAnyRole("ADMIN", "RH")
                 .anyRequest().authenticated())
                 .headers(headers -> headers.frameOptions(FrameOptionsConfig::disable))
                 .httpBasic(Customizer.withDefaults())
-                .oauth2ResourceServer(conf -> conf.jwt(Customizer.withDefaults()))
+                .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
                 .exceptionHandling(exception -> exception
                 .authenticationEntryPoint((request, response, authException)
                         -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")));
@@ -61,7 +68,8 @@ public class SecurityConfig {
     @Bean
     JwtDecoder jwtDecoder() {
         String SECRET = "6f9b1e76f552ed443a37c55ca6e8bbd48671ad2119c57461466c2c622503a232";
-        SecretKey secretKey = new SecretKeySpec(SECRET.getBytes(), "HmacSHA256");
+        byte[] secretKeyBytes = Base64.getDecoder().decode(SECRET);
+        SecretKey secretKey = new SecretKeySpec(secretKeyBytes, "HmacSHA256");
         return NimbusJwtDecoder.withSecretKey(secretKey).build();
     }
 
@@ -112,5 +120,17 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
+    }
+
+    @Bean
+    JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("authorities");
+        grantedAuthoritiesConverter.setAuthorityPrefix("");
+
+        JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
+        authenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+
+        return authenticationConverter;
     }
 }
