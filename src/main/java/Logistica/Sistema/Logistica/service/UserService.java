@@ -53,8 +53,12 @@ public class UserService {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         user.setName(userPatchDto.getName());
         user.setEmail(userPatchDto.getEmail());
-        String rawPassword = userPatchDto.getPassword();
-        user.setPassword(passwordEncoder.encode(rawPassword));
+        if (userPatchDto.getPassword() == null) {
+            user.setPassword(user.getPassword());
+        } else{
+            String rawPassword = userPatchDto.getPassword();
+            user.setPassword(passwordEncoder.encode(rawPassword));
+        }
 
         return userRepository.save(user);
     }
