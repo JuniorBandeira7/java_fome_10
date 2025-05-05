@@ -8,10 +8,10 @@
 		<version>3.4.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>comida.loja</groupId>
-	<artifactId>fome10</artifactId>
+	<groupId>Logistica.Sistema</groupId>
+	<artifactId>Logistica</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>fome10</name>
+	<name>Logistica</name>
 	<description>trabalho de poo3</description>
 	<url/>
 	<licenses>
@@ -30,6 +30,18 @@
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>

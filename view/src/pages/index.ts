@@ -1,0 +1,6 @@
+export * from './login/Login'
+export * from './home/Home'
+export * from './products/Products'
+export * from './users/Users'
+export * from './cadastrar/Cadastrar'
+export * from './cadastrarProduto/CadastrarProduto'
