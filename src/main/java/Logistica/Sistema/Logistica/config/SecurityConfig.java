@@ -53,7 +53,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers(toH2Console()).permitAll()
-                .requestMatchers(HttpMethod.POST,"/usuario", "/login").permitAll()
+                .requestMatchers(HttpMethod.POST,"/usuario", "/autenticacao/login").permitAll()
                 .requestMatchers("/usuario").hasAnyRole("ADMIN", "RH")
                 .requestMatchers( "/produto", "/produto/unico").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/usuario").hasRole("ADMIN")
