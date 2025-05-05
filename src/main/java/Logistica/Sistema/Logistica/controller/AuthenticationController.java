@@ -29,7 +29,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public String authenticate(@RequestBody LoginRequestDto loginRequestDto) {
+    public ResponseEntity<String> authenticate(@RequestBody LoginRequestDto loginRequestDto) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -37,10 +37,10 @@ public class AuthenticationController {
                             loginRequestDto.getPassword()
                     )
             );
-            return authenticationService.authenticate(authentication);
+            return ResponseEntity.status(HttpStatus.OK).body(authenticationService.authenticate(authentication));
         } catch (Exception e) {
             e.printStackTrace(); // ou log
-            return "Login falhou: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login falhou: " + e.getMessage());
         }
     }
 

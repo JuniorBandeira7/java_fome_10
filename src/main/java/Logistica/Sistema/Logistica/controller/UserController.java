@@ -32,8 +32,8 @@ public class UserController {
     @PostMapping
     public UserTokenDto create(@RequestBody User user) {return userService.save(user);}
 
-    @DeleteMapping
-    public void delete(@RequestBody Integer id) {userService.delete(id);};
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Integer id) {userService.delete(id);};
 
     @PatchMapping("/{id}")
     public User update(@RequestBody UserPatchDto user, @PathVariable Integer id) {return userService.update(id, user);}

@@ -49,27 +49,28 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.ignoringRequestMatchers(toH2Console()).disable())
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
+        http
+            .cors(Customizer.withDefaults())
+            .csrf(csrf -> csrf.ignoringRequestMatchers(toH2Console()).disable())
+            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
                 .requestMatchers(toH2Console()).permitAll()
                 .requestMatchers(HttpMethod.POST,"/usuario", "/autenticacao/login").permitAll()
                 .requestMatchers("/usuario").hasAnyRole("ADMIN", "RH")
-                .requestMatchers( "/produto", "/produto/unico").permitAll()
-                .requestMatchers(HttpMethod.DELETE, "/usuario").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PATCH, "/usuario").hasAnyRole("ADMIN", "RH")
-                .requestMatchers(HttpMethod.PATCH, "/usuario/role").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PATCH, "/usuario/role", "/produto").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/produto").hasAnyRole("ADMIN", "TECHNICAL")
-                .requestMatchers(HttpMethod.PATCH, "/produto").hasAnyRole("ADMIN", "TECHNICAL")
+                .requestMatchers("/produto", "/produto/unico").permitAll()
+                .requestMatchers(HttpMethod.DELETE, "/usuario/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PATCH, "/usuario/**").hasAnyRole("ADMIN", "RH")
+                .requestMatchers(HttpMethod.PATCH, "/usuario/role/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/produto/**").hasAnyRole("ADMIN", "TECHNICAL")
+                .requestMatchers(HttpMethod.PATCH, "/produto/**").hasAnyRole("ADMIN", "TECHNICAL")
                 .anyRequest().authenticated())
-                .headers(headers -> headers.frameOptions(FrameOptionsConfig::disable))
-                .httpBasic(Customizer.withDefaults())
-                .oauth2ResourceServer(oauth2 -> oauth2
+            .headers(headers -> headers.frameOptions(FrameOptionsConfig::disable))
+            .httpBasic(Customizer.withDefaults())
+            .oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
-                .exceptionHandling(exception -> exception
-                .authenticationEntryPoint((request, response, authException)
-                        -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")));
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint((request, response, authException) ->
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")));
 
         return http.build();
     }

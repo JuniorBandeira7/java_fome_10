@@ -60,7 +60,7 @@ h2 {
 }
 
 label {
-    color: rgb(212, 212, 247);
+    color: white;
 }
 
 .botao {
@@ -68,7 +68,7 @@ label {
     height: 40px;
     border-radius: 15px;
     opacity: 80%;
-    color: #fafafa;
+    color: rgb(0, 0, 0);
     margin-left: 10px;
     border: #c7d3f71f solid;
     background: #ffffff00;
